@@ -27,6 +27,12 @@ func main() {
 
 	defer cancel()
 
+	client.AddOrder(ctx, &pb.Order{Id: "102", Items: []string{"Google Pixel 3A", "Mac Book Pro"}, Destination: "Mountain View, CA", Price: 1800.00})
+	client.AddOrder(ctx, &pb.Order{Id: "103", Items: []string{"Apple Watch S4"}, Destination: "San Jose, CA", Price: 400.00})
+	client.AddOrder(ctx, &pb.Order{Id: "104", Items: []string{"Google Home Mini", "Google Nest Hub"}, Destination: "Mountain View, CA", Price: 400.00})
+	client.AddOrder(ctx, &pb.Order{Id: "105", Items: []string{"Amazon Echo"}, Destination: "San Jose, CA", Price: 30.00})
+	client.AddOrder(ctx, &pb.Order{Id: "106", Items: []string{"Amazon Echo", "Apple iPhone XS"}, Destination: "Mountain View, CA", Price: 300.00})
+
 	retrievedOrder, rr := client.GetOrder(ctx, &wrappers.StringValue{Value: "102"})
 	if rr != nil {
 		log.Fatalf("Server can't find the order: %v", rr)
