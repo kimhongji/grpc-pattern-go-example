@@ -22,9 +22,6 @@ func main() {
 	pb.RegisterOrderManagementServer(s, &handler.Server{})
 
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("failed to serve %v", err)
 	}
 }
-
-
-

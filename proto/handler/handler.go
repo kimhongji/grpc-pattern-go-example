@@ -2,11 +2,14 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	pb "grpc-pattern-go-example/proto/ecommerce"
 	"log"
+	"strings"
+	"time"
 )
 
 type Server struct {
@@ -32,4 +35,24 @@ func (s *Server) AddOrder(ctx context.Context, order *pb.Order) (*wrappers.Strin
 	s.orderMap[order.Id] = order
 
 	return &wrappers.StringValue{Value: "Order Added: " + order.Id}, nil
+}
+
+func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.OrderManagement_SearchOrdersServer) error {
+	for key, order := range s.orderMap {
+		log.Print(key, order)
+		for _, itemStr := range order.Items {
+			log.Print(itemStr)
+			if strings.Contains(itemStr, searchQuery.Value) {
+				// Send the matching orders in a stream
+				err := stream.Send(order)
+				if err != nil {
+					return fmt.Errorf("error sending massage to stream : %v", err)
+				}
+				log.Print("Matching Order Found: " + key)
+				time.Sleep(500 * time.Millisecond)
+				break
+			}
+		}
+	}
+	return nil
 }
