@@ -59,8 +59,8 @@ func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.Order
 }
 
 func (s *Server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
+	updatedIds := "Updated Order Ids: "
 	for {
-		updatedIds := "Updated Order Ids: "
 		order, err := stream.Recv()
 		if err == io.EOF {
 			return stream.SendAndClose(&wrappers.StringValue{Value: updatedIds})
