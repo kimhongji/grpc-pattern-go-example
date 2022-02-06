@@ -35,7 +35,7 @@ func main() {
 	client.AddOrder(ctx, &pb.Order{Id: "106", Items: []string{"Amazon Echo", "Apple iPhone XS"}, Destination: "Mountain View, CA", Price: 300.00})
 
 	// Search Order : Server streaming scenario
-	searchStream, 	_ := client.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
+	searchStream, _ := client.SearchOrders(ctx, &wrappers.StringValue{Value: "Google"})
 	for {
 		searchOrder, err := searchStream.Recv()
 		if err == io.EOF {

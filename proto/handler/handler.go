@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	pb "grpc-pattern-go-example/proto/ecommerce"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -55,4 +56,21 @@ func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.Order
 		}
 	}
 	return nil
+}
+
+func (s *Server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
+	for {
+		updatedIds := "Updated Order Ids: "
+		order, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&wrappers.StringValue{Value: updatedIds})
+		}
+		if err != nil {
+			return err
+		}
+		s.orderMap[order.Id] = order
+
+		log.Printf("Order ID : %s - %s", order.Id, "Updated")
+		updatedIds += order.Id + ", "
+	}
 }
