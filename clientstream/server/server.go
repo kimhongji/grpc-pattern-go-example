@@ -4,6 +4,8 @@ import (
 	"google.golang.org/grpc"
 	pb "grpc-pattern-go-example/proto/ecommerce"
 	"grpc-pattern-go-example/proto/handler"
+	"grpc-pattern-go-example/clientstream/internal"
+	"fmt"
 	"log"
 	"net"
 )
@@ -25,4 +27,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+	fmt.Println(internal.In{})
 }

@@ -4,13 +4,15 @@ import "google/protobuf/wrappers.proto";
 
 package ecommerce;
 
-option go_package = "./ecommerce";
+option go_package = "proto/ecommerce";
 
 service OrderManagement {
   rpc getOrder(google.protobuf.StringValue) returns (Order);
   rpc addOrder(Order) returns (google.protobuf.StringValue);
   rpc searchOrders(google.protobuf.StringValue) returns (stream Order);
   rpc updateOrders(stream Order) returns (google.protobuf.StringValue);
+  rpc upTest(Outer) returns (Outer_response);
+  rpc enumTest(google.protobuf.Int32Value) returns (EnumTest);
 }
 
 message Order {
@@ -19,4 +21,43 @@ message Order {
   string description = 3;
   float price = 4;
   string destination = 5;
+}
+
+message Outer {
+  message Inner {
+    string content = 1;
+  }
+  repeated Inner inner = 1;
+}
+
+message Outer_response {
+  string result = 1;
+}
+
+message EnumTest {
+  enum State {
+    UNKNOWN = 0;
+    RUNNING = 1;
+  }
+  State state = 1;
+}
+
+message OneofTest {
+  oneof type{
+    int32 id = 1;
+    string name = 2;
+  }
+}
+
+message ProtoTest {
+  bool is = 1;
+  int32 num = 2;
+  oneof type{
+    int32 id = 3;
+    string name = 4;
+  }
+}
+
+message RepeatTest {
+  repeated string name = 1;
 }

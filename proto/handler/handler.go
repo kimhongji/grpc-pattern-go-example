@@ -2,22 +2,41 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/wrappers"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	pb "grpc-pattern-go-example/proto/ecommerce"
 	"io"
 	"log"
 	"strings"
 	"time"
+
+	"grpc-pattern-go-example/proto/ecommerce"
+
+	"github.com/golang/protobuf/jsonpb"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
-	orderMap map[string]*pb.Order
+	orderMap map[string]*ecommerce.Order
 }
 
-func (s *Server) GetOrder(ctx context.Context, orderId *wrappers.StringValue) (*pb.Order, error){
+func (s *Server) mustEmbedUnimplementedOrderManagementServer() {
+	panic("implement me")
+}
+
+func (s *Server) EnumTest(ctx context.Context, value *wrappers.Int32Value) (*ecommerce.EnumTest, error) {
+
+	A := ecommerce.EnumTest{}
+	stateStruc := "{\"state\": 1}"
+	marshaledstateStruc, _ := json.Marshal(stateStruc)
+	json.Unmarshal(marshaledstateStruc, &A)
+
+	return &A, nil
+}
+
+func (s *Server) GetOrder(ctx context.Context, orderId *wrappers.StringValue) (*ecommerce.Order, error) {
 	ord, exists := s.orderMap[orderId.Value]
 	if exists {
 		return ord, status.New(codes.OK, "").Err()
@@ -26,11 +45,11 @@ func (s *Server) GetOrder(ctx context.Context, orderId *wrappers.StringValue) (*
 	return nil, status.Errorf(codes.NotFound, "Order does not exist. : ", orderId)
 }
 
-func (s *Server) AddOrder(ctx context.Context, order *pb.Order) (*wrappers.StringValue, error) {
+func (s *Server) AddOrder(ctx context.Context, order *ecommerce.Order) (*wrappers.StringValue, error) {
 	log.Printf("Order Added. ID : %v", order.Id)
 
 	if s.orderMap == nil {
-		s.orderMap = make(map[string]*pb.Order)
+		s.orderMap = make(map[string]*ecommerce.Order)
 	}
 
 	s.orderMap[order.Id] = order
@@ -38,7 +57,7 @@ func (s *Server) AddOrder(ctx context.Context, order *pb.Order) (*wrappers.Strin
 	return &wrappers.StringValue{Value: "Order Added: " + order.Id}, nil
 }
 
-func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.OrderManagement_SearchOrdersServer) error {
+func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream ecommerce.OrderManagement_SearchOrdersServer) error {
 	for key, order := range s.orderMap {
 		log.Print(key, order)
 		for _, itemStr := range order.Items {
@@ -58,7 +77,7 @@ func (s *Server) SearchOrders(searchQuery *wrappers.StringValue, stream pb.Order
 	return nil
 }
 
-func (s *Server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
+func (s *Server) UpdateOrders(stream ecommerce.OrderManagement_UpdateOrdersServer) error {
 	updatedIds := "Updated Order Ids: "
 	for {
 		order, err := stream.Recv()
@@ -73,4 +92,12 @@ func (s *Server) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) erro
 		log.Printf("Order ID : %s - %s", order.Id, "Updated")
 		updatedIds += order.Id + ", "
 	}
+}
+
+func (s *Server) UpTest(ctx context.Context, outer *ecommerce.Outer) (*ecommerce.OuterResponse, error) {
+	log.Printf("outer > innter > content:  %s", outer.Inner[0].Content)
+	log.Printf("outer > innter > content:  %s", outer.Inner[1].Content)
+	response, _ := (&jsonpb.Marshaler{}).MarshalToString(outer)
+	log.Println(response)
+	return &ecommerce.OuterResponse{Result: response}, nil
 }

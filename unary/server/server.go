@@ -1,9 +1,11 @@
 package main
 
 import (
-	"google.golang.org/grpc"
-	pb "grpc-pattern-go-example/proto/ecommerce"
+	"grpc-pattern-go-example/proto/ecommerce"
 	"grpc-pattern-go-example/proto/handler"
+
+	"google.golang.org/grpc"
+
 	"log"
 	"net"
 )
@@ -19,12 +21,9 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterOrderManagementServer(s, &handler.Server{})
+	ecommerce.RegisterOrderManagementServer(s, &handler.Server{})
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
-
-
-
